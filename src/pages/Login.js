@@ -1,26 +1,8 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
-import * as Yup from "yup";
 import { useMutation } from "@tanstack/react-query";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
-
-const loginUser = async (loginInput) => {
-    const controller = new AbortController();
-    const url =  process.env.REACT_APP_BASE_URL
-  
-    const response = await axios.post(
-      `${url}/login-user`,
-      loginInput,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        signal: controller.signal,
-      }
-    );
-  
-    return response.data;
-  };
+import loginSchema from "../schema/loginSchema";
+import loginUser from "../utils/login-user";
 
 const Login = () => {
     const navigate = useNavigate();
@@ -29,30 +11,16 @@ const Login = () => {
       });
 
   const initialValues = {
-    email: "",
+    email: "", 
     password: "",
   };
 
-  const validationSchema = Yup.object({
-    email: Yup.string()
-      .email("Invalid email address")
-      .required("Email is required"),
-    password: Yup.string()
-      .min(6, "Password must be at least 6 characters")
-      .required("Password is required"),
-  });
-
   const handleSubmit = (values) => {
-    console.log("Login Form Data:", values);
     mutate(values, {
-        onSuccess: (data) => {
+        onSuccess: () => {
           navigate('/');
-          console.log(data);
-        },
-        onError: (error) => {
-          console.log(error.response.data.errors);
-          console.error('Error during registration:', error);
-        },
+          window.location.reload()
+        }
       });
   };
 
@@ -64,7 +32,7 @@ const Login = () => {
         </h2>
         <Formik
           initialValues={initialValues}
-          validationSchema={validationSchema}
+          validationSchema={loginSchema}
           onSubmit={handleSubmit}
         >
           <Form>
@@ -103,13 +71,14 @@ const Login = () => {
             <button
               type="submit"
               className="w-full bg-orange-600 text-white py-2 rounded-md hover:bg-orange-700"
+              disabled={isPending}
             >
               {isPending ? "Logging In..." : "Login"}
             </button>
           </Form>
         </Formik>
 
-        {isError && <p className="text-red-500 mt-4">{error.response?.data?.errors}</p>}
+        {isError && <p className="text-red-500 mt-4">{error.response?.data?.error}</p>}
         {isSuccess && <p className="text-green-500 mt-4">{data?.message}</p>}
       </div>
     </div>

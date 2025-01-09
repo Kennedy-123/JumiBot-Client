@@ -3,6 +3,9 @@ import * as Yup from "yup";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import checkLoginStatus from "../utils/check-login";
+
+checkLoginStatus()
 
 const registerUser = async (registerInput) => {
   const controller = new AbortController();

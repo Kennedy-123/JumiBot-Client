@@ -1,20 +1,66 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import checkLoginStatus from "../utils/check-login";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useMutation } from "@tanstack/react-query";
+import axios from "axios";
 
+
+const loginStatus = await checkLoginStatus()
 const HomePage = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if(!loginStatus) {
+      navigate('/welcome')
+    }
+  }, [navigate])
+
+const trackProduct = async (productUrl) => {
+    const controller = new AbortController();
+    const url =  process.env.REACT_APP_BASE_URL
+  
+    const response = await axios.post(
+      `${url}/track`,
+      productUrl,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        signal: controller.signal,
+        withCredentials: true
+      },
+    );
+  
+    return response.data;
+  };
+
+  const { mutate, isPending, isError, isSuccess, error, data } = useMutation({
+    mutationFn: trackProduct,
+  });
+
   const initialValues = {
     productUrl: "",
   };
 
+  
+  // Regex for validating Jumia product URLs
+  const jumiaUrlRegex = /^https?:\/\/(www\.)?jumia\.com\.\w{2,3}(\/.*)?$/;
+  
   const validationSchema = Yup.object({
     productUrl: Yup.string()
-      .url("Enter a valid URL")
-      .required("Product URL is required"),
+    .url("Enter a valid URL")
+    .required("Product URL is required")
+    .matches(jumiaUrlRegex, 'Please enter a valid Jumia product URL'),
   });
-
-  const handleSubmit = (values, { resetForm }) => {
-    console.log("Home Page Form Data:", values);
-    resetForm(); // Clear the form after submission
+  
+  const handleSubmit = (values) => {
+    mutate(values, {
+        onSuccess: (data) => {
+          navigate('/TrackedProduct');
+        }
+      });
   };
 
   return (
@@ -53,11 +99,15 @@ const HomePage = () => {
             <button
               type="submit"
               className="w-full bg-orange-600 text-white py-2 rounded-md hover:bg-orange-700"
+              disabled={isPending}
             >
-              Track Product
+              {isPending ? 'Tracking...' : 'Track Product'}
             </button>
           </Form>
         </Formik>
+        
+        {isError && <p className="text-red-500 mt-4">{error?.response?.data?.error}</p>}
+        {isSuccess && <p className="text-green-500 mt-4">{data?.message}</p>}
       </div>
     </div>
   );

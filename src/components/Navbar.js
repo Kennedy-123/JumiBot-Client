@@ -1,10 +1,29 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import checkLoginStatus from "../utils/check-login";
 
+const loginStatus = await checkLoginStatus()
 const Navbar = () => {
+  const navigate = useNavigate()
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+
+  const logout = async () => {
+    const url = process.env.REACT_APP_BASE_URL
+    try {
+      const res = await axios.get(`${url}/logout-user`, {withCredentials: true})
+      console.log(res.data)
+      if (res.status === 200){
+        navigate('/welcome')
+        window.location.reload()
+      }
+    } catch (error) {
+      console.error("Logout failed:", error.response?.data || error.message)
+    }
+  }
 
   return (
     <nav className="bg-orange-600 shadow-lg">
@@ -37,7 +56,7 @@ const Navbar = () => {
 
           {/* Brand Name */}
           <div className="flex items-center justify-center sm:items-stretch sm:justify-start z-20">
-            <Link to="/" className="text-white text-2xl font-semibold">
+            <Link to="/" className="text-white text-2xl hover:text-gray-400 font-semibold">
               JumiBot
             </Link>
           </div>
@@ -46,56 +65,58 @@ const Navbar = () => {
           <div className="hidden sm:flex sm:ml-auto space-x-6">
             <Link
               to="/"
-              className="text-white hover:text-gray-200 px-3 py-2 rounded-md text-lg font-medium transition duration-200"
+              className="text-white hover:text-gray-400 px-3 py-2 rounded-md text-lg font-medium transition duration-200"
             >
               Home
             </Link>
             <Link
-              to="/dashboard"
-              className="text-white hover:text-gray-200 px-3 py-2 rounded-md text-lg font-medium transition duration-200"
+              to="/TrackedProduct"
+              className="text-white hover:text-gray-400 px-3 py-2 rounded-md text-lg font-medium transition duration-200"
             >
-              Dashboard
+              TrackedProduct
             </Link>
             <Link
               to="/pricing"
-              className="text-white hover:text-gray-200 px-3 py-2 rounded-md text-lg font-medium transition duration-200"
+              className="text-white hover:text-gray-400 px-3 py-2 rounded-md text-lg font-medium transition duration-200"
             >
               Pricing
             </Link>
+            {loginStatus && <button className="bg-gray-800 text-white w-24 hover:bg-slate-600 px-2 font-medium rounded-xl py-1" onClick={logout}>Logout</button>}
+            {!loginStatus && <button className="bg-gray-800 text-white w-24 hover:bg-slate-600 px-2 font-medium rounded-xl py-1" onClick={() => navigate('/login')}>LogIn</button>}
           </div>
         </div>
       </div>
 
       {/* Mobile Menu */}
       <div
-        className={`${
-          isMenuOpen ? "block" : "hidden"
-        } sm:hidden bg-orange-600 w-full absolute top-16 right-0 z-10`}
+        className={`${isMenuOpen ? "block" : "hidden"} sm:hidden bg-orange-600 w-full absolute top-16`}
       >
-        <div className="px-4 pt-4 pb-4 space-y-2">
-          <Link
-            to="/"
-            className="text-white block px-3 py-2 rounded-md text-lg font-medium transition duration-200"
-            onClick={() => setIsMenuOpen(false)}
-          >
-            Home
-          </Link>
-          <Link
-            to="/dashboard"
-            className="text-white block px-3 py-2 rounded-md text-lg font-medium transition duration-200"
-            onClick={() => setIsMenuOpen(false)}
-          >
-            Dashboard
-          </Link>
-          <Link
-            to="/pricing"
-            className="text-white block px-3 py-2 rounded-md text-lg font-medium transition duration-200"
-            onClick={() => setIsMenuOpen(false)}
-          >
-            Pricing
-          </Link>
+          <div className="flex flex-col items-center p-4">
+            <Link
+              to="/"
+              className="text-white block  px-3 py-2 rounded-md text-lg font-medium transition duration-200"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Home
+            </Link>
+            <Link
+              to="/TrackedProduct"
+              className="text-white block px-3 py-2 rounded-md text-lg font-medium transition duration-200"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              TrackedProduct
+            </Link>
+            <Link
+              to="/pricing"
+              className="text-white block px-3 py-2 rounded-md text-lg font-medium transition duration-200"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Pricing
+            </Link>
+            {loginStatus && <button className="bg-gray-800 text-white w-24 hover:bg-slate-600 px-2 font-medium rounded-xl py-1" onClick={logout}>Logout</button>}
+            {!loginStatus && <button className="bg-gray-800 text-white w-24 hover:bg-slate-600 px-2 font-medium rounded-xl py-1" onClick={() => navigate('/login')}>LogIn</button>}
+          </div>
         </div>
-      </div>
     </nav>
   );
 };

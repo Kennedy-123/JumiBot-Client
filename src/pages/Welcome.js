@@ -1,6 +1,18 @@
-import React from "react";
+import React, {useEffect} from "react";
+import { useNavigate } from "react-router-dom";
+import checkLoginStatus from "../utils/check-login";
 
-const Landing = () => {
+const loginStatus = await checkLoginStatus()
+
+const Welcome = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if(loginStatus) {
+      navigate('/')
+    }
+  }, [navigate])
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
@@ -85,17 +97,8 @@ const Landing = () => {
           Sign Up Now
         </a>
       </section>
-
-      {/* Footer
-      <footer className="bg-gray-800 py-6">
-        <div className="text-center text-gray-400">
-          <p>
-            &copy; {new Date().getFullYear()} JumiBot. All Rights Reserved.
-          </p>
-        </div>
-      </footer> */}
     </div>
   );
 };
 
-export default Landing;
+export default Welcome;
