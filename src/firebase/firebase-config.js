@@ -2,7 +2,7 @@ import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAVih0wJBodnJtuwJy3HjBZ6TNjXeOinho",
+  apiKey: process.env.REACT_APP_GOOGLE_API_KEY,
   authDomain: "jumibot-863e8.firebaseapp.com",
   projectId: "jumibot-863e8",
   storageBucket: "jumibot-863e8.firebasestorage.app",
