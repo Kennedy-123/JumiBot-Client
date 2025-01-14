@@ -7,7 +7,9 @@ const getTrackedProducts = async () => {
     signal: controller.signal,
     withCredentials: true,
   });
-  return response.data.products;
+  const product = response.data.products
+  product.reverse()
+  return product;
 };
 
 export default getTrackedProducts

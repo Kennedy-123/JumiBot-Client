@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
-
+import HowToUse from "../components/HowToUse";
 
 const loginStatus = await checkLoginStatus()
 const HomePage = () => {
@@ -64,53 +64,63 @@ const trackProduct = async (productUrl) => {
   };
 
   return (
-    <div className="min-h-screen bg-orange-50 flex flex-col items-center justify-center">
-      <h1 className="text-4xl font-bold text-orange-600 mb-8">Welcome to JumiBot</h1>
-      <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
-        <h2 className="text-2xl font-semibold text-orange-500 text-center mb-4">
-          Track Your Favorite Products
-        </h2>
-        <Formik
-          initialValues={initialValues}
-          validationSchema={validationSchema}
-          onSubmit={handleSubmit}
-        >
-          <Form>
-            <div className="mb-4">
-              <label
-                htmlFor="productUrl"
-                className="block text-gray-700 font-medium"
+    <div className="min-h-screen bg-orange-50">
+      <div className="flex flex-col items-center justify-center py-16">
+        <h1 className="text-4xl font-bold text-orange-600 mb-8">
+          Welcome to JumiBot
+        </h1>
+        <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
+          <h2 className="text-2xl font-semibold text-orange-500 text-center mb-4">
+            Track Your Favorite Products
+          </h2>
+          <Formik
+            initialValues={initialValues}
+            validationSchema={validationSchema}
+            onSubmit={handleSubmit}
+          >
+            <Form>
+              <div className="mb-4">
+                <label
+                  htmlFor="productUrl"
+                  className="block text-gray-700 font-medium"
+                >
+                  Enter Product URL
+                </label>
+                <Field
+                  type="url"
+                  id="productUrl"
+                  name="productUrl"
+                  placeholder="https://example.com/product"
+                  className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                />
+                <ErrorMessage
+                  name="productUrl"
+                  component="div"
+                  className="text-red-500 text-sm mt-1"
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full bg-orange-600 text-white py-2 rounded-md hover:bg-orange-700 disabled:cursor-not-allowed disabled:bg-gray-600"
+                disabled={isPending}
               >
-                Enter Product URL
-              </label>
-              <Field
-                type="url"
-                id="productUrl"
-                name="productUrl"
-                placeholder="https://example.com/product"
-                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-              />
-              <ErrorMessage
-                name="productUrl"
-                component="div"
-                className="text-red-500 text-sm mt-1"
-              />
-            </div>
-            <button
-              type="submit"
-              className="w-full bg-orange-600 text-white py-2 rounded-md hover:bg-orange-700"
-              disabled={isPending}
-            >
-              {isPending ? 'Tracking...' : 'Track Product'}
-            </button>
-          </Form>
-        </Formik>
-        
-        {isError && <p className="text-red-500 mt-4">{error?.response?.data?.error}</p>}
-        {isSuccess && <p className="text-green-500 mt-4">{data?.message}</p>}
+                {isPending ? "Tracking..." : "Track Product"}
+              </button>
+            </Form>
+          </Formik>
+
+          {isError && (
+            <p className="text-red-500 mt-4">{error?.response?.data?.error}</p>
+          )}
+          {isSuccess && <p className="text-green-500 mt-4">{data?.message}</p>}
+        </div>
       </div>
+
+      {/* HowToUse Section */}
+      <HowToUse />
     </div>
   );
 };
+
 
 export default HomePage;

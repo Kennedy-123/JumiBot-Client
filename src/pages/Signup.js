@@ -2,67 +2,91 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import checkLoginStatus from "../utils/check-login";
+import { signInWithPopup } from "firebase/auth";
+import { auth, googleProvider } from "../firebase/firebase-config";
+checkLoginStatus();
 
-checkLoginStatus()
+const url = process.env.REACT_APP_BASE_URL;
 
 const registerUser = async (registerInput) => {
   const controller = new AbortController();
-  const url =  process.env.REACT_APP_BASE_URL
 
   const response = await axios.post(
     `${url}/register-user`,
     registerInput,
     {
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       signal: controller.signal,
     }
   );
-
+  
   return response.data;
 };
+
 
 const SignUp = () => {
   const navigate = useNavigate();
   const { mutate, isPending, isError, error, isSuccess, data } = useMutation({
     mutationFn: registerUser,
   });
-
+  
   const initialValues = {
     username: "",
     email: "",
     password: "",
     confirmPassword: "",
   };
-
+  
+  
   const validationSchema = Yup.object({
     username: Yup.string().required("Username is required"),
     email: Yup.string()
-      .email("Invalid email address")
-      .required("Email is required"),
+    .email("Invalid email address")
+    .required("Email is required"),
     password: Yup.string()
-      .min(6, "Password must be at least 6 characters")
-      .required("Password is required"),
+    .min(6, "Password must be at least 6 characters")
+    .required("Password is required"),
     confirmPassword: Yup.string()
-      .oneOf([Yup.ref("password"), null], "Passwords must match")
-      .required("Confirm password is required"),
+    .oneOf([Yup.ref("password"), null], "Passwords must match")
+    .required("Confirm password is required"),
   });
+  
+  const handleGoogleSignUp = async () => {
+    try {
+      await signInWithPopup(auth, googleProvider)
+  
+      await axios.post(
+      `${url}/register-user`,
+      {
+        'email': auth?.currentUser?.email,
+        "isGoogleAuth": true
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true
+      }
+    );
+    navigate('/')
+    window.location.reload()
+    } catch (error) {
+      console.error(error)
+    }
+  };
 
   const handleSubmit = (values) => {
     mutate(values, {
       onSuccess: (data) => {
-        navigate('/login');
-        console.log(data);
-      },
-      onError: (error) => {
-        console.log(error.response.data.errors);
-        console.error('Error during registration:', error);
-      },
+        navigate("/login");
+      }
     });
   };
+
 
   return (
     <div className="min-h-screen bg-orange-50 flex justify-center items-center">
@@ -140,21 +164,53 @@ const SignUp = () => {
                 className="text-red-500 text-sm"
               />
             </div>
+
+            {isError && (
+              <p className="text-red-500 mt-4">{error.response?.data?.errors}</p>
+            )}
+            {isSuccess && <p className="text-green-500 mt-4">{data?.message}</p>}
+
             <button
               type="submit"
-              className="w-full bg-orange-600 text-white py-2 rounded-md hover:bg-orange-700"
+              className="w-full bg-orange-600 text-white py-2 rounded-md hover:bg-orange-700 mb-4 disabled:cursor-not-allowed disabled:bg-gray-600"
               disabled={isPending}
             >
               {isPending ? "Signing Up..." : "Sign Up"}
             </button>
+            
+
+            <p className="mt-4 text-center text-gray-500">
+              Already have an account?
+              <Link to="/login" className="text-orange-600 hover:text-orange-700">
+                Login
+              </Link>
+            </p>
+            
           </Form>
         </Formik>
-
-        {isError && <p className="text-red-500 mt-4">{error.response?.data?.errors}</p>}
-        {isSuccess && <p className="text-green-500 mt-4">{data?.message}</p>}
+  
+        {/* OR Separator */}
+        <div className="flex items-center my-6">
+          <hr className="flex-grow border-gray-300" />
+          <span className="mx-4 text-gray-500 font-semibold">or</span>
+          <hr className="flex-grow border-gray-300" />
+        </div>
+  
+        <button
+          onClick={handleGoogleSignUp}
+          className="w-full flex items-center justify-center bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700"
+        >
+          <img
+            src="/icons/google.svg"
+            alt="Google logo"
+            className="h-5 w-5 mr-2"
+          />
+          Sign up with Google
+        </button>
       </div>
     </div>
   );
+  
 };
 
 export default SignUp;
