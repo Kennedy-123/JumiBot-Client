@@ -7,32 +7,32 @@ import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import HowToUse from "../components/HowToUse";
 
-const loginStatus = await checkLoginStatus()
+const loginStatus = await checkLoginStatus();
 const HomePage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if(!loginStatus) {
-      navigate('/welcome')
+    if (!loginStatus) {
+      navigate("/welcome");
     }
-  }, [navigate])
+  }, [navigate]);
 
-const trackProduct = async (productUrl) => {
+  const trackProduct = async (productUrl) => {
     const controller = new AbortController();
-    const url =  process.env.REACT_APP_BASE_URL
-  
+    const url = process.env.REACT_APP_BASE_URL;
+
     const response = await axios.post(
       `${url}/track`,
       productUrl,
       {
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         signal: controller.signal,
-        withCredentials: true
-      },
+        withCredentials: true,
+      }
     );
-  
+
     return response.data;
   };
 
@@ -44,23 +44,22 @@ const trackProduct = async (productUrl) => {
     productUrl: "",
   };
 
-  
   // Regex for validating Jumia product URLs
   const jumiaUrlRegex = /^https?:\/\/(www\.)?jumia\.com\.\w{2,3}(\/.*)?$/;
-  
+
   const validationSchema = Yup.object({
     productUrl: Yup.string()
-    .url("Enter a valid URL")
-    .required("Product URL is required")
-    .matches(jumiaUrlRegex, 'Please enter a valid Jumia product URL'),
+      .url("Enter a valid URL")
+      .required("Product URL is required")
+      .matches(jumiaUrlRegex, "Please enter a valid Jumia product URL"),
   });
-  
+
   const handleSubmit = (values) => {
     mutate(values, {
-        onSuccess: (data) => {
-          navigate('/TrackedProduct');
-        }
-      });
+      onSuccess: (data) => {
+        navigate("/TrackedProduct");
+      },
+    });
   };
 
   return (
@@ -78,35 +77,48 @@ const trackProduct = async (productUrl) => {
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
           >
-            <Form>
-              <div className="mb-4">
-                <label
-                  htmlFor="productUrl"
-                  className="block text-gray-700 font-medium"
+            {({ setFieldValue, values }) => (
+              <Form>
+                <div className="mb-4 relative">
+                  <label
+                    htmlFor="productUrl"
+                    className="block text-gray-700 font-medium"
+                  >
+                    Enter Product URL
+                  </label>
+                  <div className="relative">
+                    <Field
+                      type="url"
+                      id="productUrl"
+                      name="productUrl"
+                      placeholder="https://www.jumia.com.ng/apple-iphone-13-pro-max-6.7-256gb-rom-6gb-ram-ios-15-5g-252693062.html"
+                      className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 pr-10"
+                    />
+                    {values.productUrl && (
+                      <button
+                        type="button"
+                        onClick={() => setFieldValue("productUrl", "")}
+                        className="absolute right-2 top-2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                      >
+                        &times;
+                      </button>
+                    )}
+                  </div>
+                  <ErrorMessage
+                    name="productUrl"
+                    component="div"
+                    className="text-red-500 text-sm mt-1"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="w-full bg-orange-600 text-white py-2 rounded-md hover:bg-orange-700 disabled:cursor-not-allowed disabled:bg-gray-600"
+                  disabled={isPending}
                 >
-                  Enter Product URL
-                </label>
-                <Field
-                  type="url"
-                  id="productUrl"
-                  name="productUrl"
-                  placeholder="https://example.com/product"
-                  className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                />
-                <ErrorMessage
-                  name="productUrl"
-                  component="div"
-                  className="text-red-500 text-sm mt-1"
-                />
-              </div>
-              <button
-                type="submit"
-                className="w-full bg-orange-600 text-white py-2 rounded-md hover:bg-orange-700 disabled:cursor-not-allowed disabled:bg-gray-600"
-                disabled={isPending}
-              >
-                {isPending ? "Tracking..." : "Track Product"}
-              </button>
-            </Form>
+                  {isPending ? "Tracking..." : "Track Product"}
+                </button>
+              </Form>
+            )}
           </Formik>
 
           {isError && (
@@ -121,6 +133,5 @@ const trackProduct = async (productUrl) => {
     </div>
   );
 };
-
 
 export default HomePage;

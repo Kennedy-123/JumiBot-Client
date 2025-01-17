@@ -9,6 +9,7 @@ import PricingPage from './pages/pricing';
 import Welcome from './pages/Welcome';
 import Footer from './components/Footer';
 import checkLoginStatus from "./utils/check-login";
+import PaymentSuccess from './pages/PaymentSuccess';
 
 const loginStatus = await checkLoginStatus()
 
@@ -23,6 +24,7 @@ function App() {
         <Route path="/TrackedProduct" element={<TrackedProduct />} />
         <Route path="/pricing" element={<PricingPage/>} />
         <Route path="/Welcome" element={<Welcome/>} />
+        <Route path="/payment-success" element={<PaymentSuccess/>} />
       </Routes>
       <Footer/>
     </Router>

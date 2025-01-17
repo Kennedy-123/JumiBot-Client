@@ -1,6 +1,6 @@
 const HowToUse = () => {
     return (
-      <section className="bg-orange-50 py-16 px-6">
+      <section className="bg-orange-100 py-16 px-6">
         <h2 className="text-3xl md:text-4xl font-bold text-center text-orange-600 mb-12">
           How to Use JumiBot
         </h2>
