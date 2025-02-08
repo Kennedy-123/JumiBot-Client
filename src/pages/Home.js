@@ -21,17 +21,13 @@ const HomePage = () => {
     const controller = new AbortController();
     const url = process.env.REACT_APP_BASE_URL;
 
-    const response = await axios.post(
-      `${url}/track`,
-      productUrl,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        signal: controller.signal,
-        withCredentials: true,
-      }
-    );
+    const response = await axios.post(`${url}/track`, productUrl, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      signal: controller.signal,
+      withCredentials: true,
+    });
 
     return response.data;
   };
@@ -57,8 +53,12 @@ const HomePage = () => {
   const handleSubmit = (values) => {
     mutate(values, {
       onSuccess: (data) => {
-        navigate("/TrackedProduct");
-      },
+        if (data.redirect) {
+          navigate(data.redirect);
+        } else {
+          navigate("/TrackedProduct");
+        }
+      }
     });
   };
 

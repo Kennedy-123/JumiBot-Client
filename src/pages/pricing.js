@@ -3,9 +3,12 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { Loader } from "../components/Loader";
 import checkSubscriptionStatus from "../utils/check-subscription-status";
 import handleBasicPayment from "../utils/handle-basic-payment";
+import checkLoginStatus from "../utils/check-login";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 const subscriptionStatus = await checkSubscriptionStatus();
-
+const loginStatus = await checkLoginStatus();
 
 const cancelSubscription = async () => {
   const controller = new AbortController();
@@ -21,6 +24,13 @@ const cancelSubscription = async () => {
 };
 
 const PricingPage = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loginStatus) {
+      navigate("/welcome");
+    }
+  }, [navigate]);
   const {
     mutate,
     isPending: subscriptionPending,
@@ -38,7 +48,6 @@ const PricingPage = () => {
     isError: isCancelSubscriptionError,
     isSuccess: isCancelSubscriptionSuccess,
     isLoading: isCancelSubscriptionLoading,
-    error: CancelSubscriptionError,
     refetch
   } = useQuery({
     queryFn: cancelSubscription,
@@ -52,8 +61,6 @@ const PricingPage = () => {
   const handleSubscriptionCancellation = () => {
     refetch(); // Triggers the query
   };
-
-  console.log(CancelSubscriptionError)
 
   return (
     <div className="min-h-screen text-white px-6 py-12 md:px-16 lg:px-32">
@@ -75,7 +82,7 @@ const PricingPage = () => {
           </h2>
           <p className="text-3xl md:text-4xl font-bold mt-4">₦ 5,000</p>
           <ul className="mt-6 text-gray-300 space-y-3 text-sm md:text-base">
-            <li> ✅ Monthly subscriptionn</li>
+            <li> ✅ Monthly subscription</li>
             <li> ❌ Lifetime ownership</li>
             <li> ✅ Email notification</li>
             <li> ❌ Checkout functionality</li>
