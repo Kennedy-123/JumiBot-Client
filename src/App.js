@@ -1,32 +1,35 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
-import TrackedProduct from './pages/TrackedProduct';
-import Home from './pages/Home';
-import Navbar from './components/Navbar';
-import PricingPage from './pages/pricing';
-import Welcome from './pages/Welcome';
-import Footer from './components/Footer';
+import React, { lazy, Suspense } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import checkLoginStatus from "./utils/check-login";
-import PaymentSuccess from './pages/PaymentSuccess';
 
-const loginStatus = await checkLoginStatus()
+const Login = lazy(() => import("./pages/Login"));
+const Signup = lazy(() => import("./pages/Signup"));
+const TrackedProduct = lazy(() => import("./pages/TrackedProduct"));
+const Home = lazy(() => import("./pages/Home"));
+const PricingPage = lazy(() => import("./pages/pricing"));
+const Welcome = lazy(() => import("./pages/Welcome"));
+const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
+const Navbar = lazy(() => import("./components/Navbar"));
+const Footer = lazy(() => import("./components/Footer"));
+
+const loginStatus = await checkLoginStatus();
 
 function App() {
   return (
     <Router>
-      {loginStatus && <Navbar/>}
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/TrackedProduct" element={<TrackedProduct />} />
-        <Route path="/pricing" element={<PricingPage/>} />
-        <Route path="/Welcome" element={<Welcome/>} />
-        <Route path="/payment-success" element={<PaymentSuccess/>} />
-      </Routes>
-      <Footer/>
+      <Suspense>
+        {loginStatus && <Navbar />}
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/TrackedProduct" element={<TrackedProduct />} />
+          <Route path="/pricing" element={<PricingPage />} />
+          <Route path="/Welcome" element={<Welcome />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
+        </Routes>
+        <Footer />
+      </Suspense>
     </Router>
   );
 }
