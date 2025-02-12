@@ -75,7 +75,7 @@ const Navbar = () => {
           </div>
 
           {/* Navbar Links */}
-          <div className="hidden sm:flex sm:ml-auto space-x-6">
+          <div className="hidden sm:flex sm:ml-auto space-x-4">
             <Link
               to="/"
               className="text-white hover:text-gray-400 px-3 py-2 rounded-md text-lg font-medium transition duration-200"
