@@ -7,7 +7,7 @@ const handleBasicPayment = async () => {
     `${url}/subscription`,
     {
       amount: "500000",
-      plan_code: "PLN_5prmibl32upqhg4",
+      plan_code: "PLN_qc8kpew2k1l7elf",
     },
     {
       headers: {
